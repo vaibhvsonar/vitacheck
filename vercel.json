@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "framework": null,
   "cleanUrls": true,
   "rewrites": [
     {
@@ -10,30 +9,6 @@
     {
       "source": "/health",
       "destination": "/api/analyse"
-    },
-    {
-      "source": "/styles.css",
-      "destination": "/frontend/styles.css"
-    },
-    {
-      "source": "/script.js",
-      "destination": "/frontend/script.js"
-    },
-    {
-      "source": "/logo_dark.jpg",
-      "destination": "/frontend/logo_dark.jpg"
-    },
-    {
-      "source": "/logo_light.jpg",
-      "destination": "/frontend/logo_light.jpg"
-    },
-    {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/frontend/(.*)",
-      "destination": "/frontend/$1"
     }
   ]
 }

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VitaCheck — AI Symptom Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="font-md">
+
+<!-- BACKGROUND -->
+<div class="bg-canvas">
+  <div class="bg-orb bg-orb1"></div>
+  <div class="bg-orb bg-orb2"></div>
+  <div class="bg-orb bg-orb3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════ SETTINGS MODAL ═══════════════ -->
+<div class="modal-overlay" id="settingsModal" onclick="closeSettings(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Settings & Preferences</div>
+      <button class="modal-close" onclick="closeSettingsBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- THEME -->
+      <div class="setting-section">
+        <div class="setting-section-title">🎨 Appearance</div>
+        <div class="theme-toggle-group">
+          <div class="theme-opt selected" id="themeOptDark" onclick="setTheme('dark')">
+            <div class="theme-preview tp-dark">
+              <div class="tp-bar"></div><div class="tp-bar" style="width:70%"></div><div class="tp-accent"></div>
+            </div>
+            <div class="theme-opt-label">🌙 Dark</div>
+          </div>
+          <div class="theme-opt" id="themeOptLight" onclick="setTheme('light')">
+            <div class="theme-preview tp-light">
+              <div class="tp-bar"></div><div class="tp-bar" style="width:70%"></div><div class="tp-accent"></div>
+            </div>
+            <div class="theme-opt-label">☀️ Light</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCENT COLOR -->
+      <div class="setting-section">
+        <div class="setting-section-title">🎯 Accent Color</div>
+        <div class="accent-grid" id="accentGrid">
+          <div class="accent-swatch selected" data-color="#00d4aa" style="background:#00d4aa" onclick="setAccent('#00d4aa','#00b894')"></div>
+          <div class="accent-swatch" data-color="#4da6ff" style="background:#4da6ff" onclick="setAccent('#4da6ff','#2e8fe0')"></div>
+          <div class="accent-swatch" data-color="#a78bfa" style="background:#a78bfa" onclick="setAccent('#a78bfa','#8b6ef5')"></div>
+          <div class="accent-swatch" data-color="#f472b6" style="background:#f472b6" onclick="setAccent('#f472b6','#ec4899')"></div>
+          <div class="accent-swatch" data-color="#fb923c" style="background:#fb923c" onclick="setAccent('#fb923c','#ea7c22')"></div>
+          <div class="accent-swatch" data-color="#facc15" style="background:#facc15" onclick="setAccent('#facc15','#eab308')"></div>
+        </div>
+      </div>
+
+      <!-- FONT SIZE -->
+      <div class="setting-section">
+        <div class="setting-section-title">🔡 Text Size</div>
+        <div class="font-size-group">
+          <div class="font-size-opt" style="font-size:11px" onclick="setFontSize('sm')" id="fsOpt-sm">Small</div>
+          <div class="font-size-opt selected" style="font-size:13px" onclick="setFontSize('md')" id="fsOpt-md">Medium</div>
+          <div class="font-size-opt" style="font-size:15px" onclick="setFontSize('lg')" id="fsOpt-lg">Large</div>
+          <div class="font-size-opt" style="font-size:17px" onclick="setFontSize('xl')" id="fsOpt-xl">XL</div>
+        </div>
+      </div>
+
+      <!-- FEATURE TOGGLES -->
+      <div class="setting-section">
+        <div class="setting-section-title">🔧 Features</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Compact Mode</div>
+            <div class="toggle-desc">Reduce spacing for more content on screen</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="toggleCompact" onchange="applyCompact(this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Animated Background</div>
+            <div class="toggle-desc">Floating gradient orbs and grid pattern</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="toggleBg" checked onchange="applyBg(this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Voice Input</div>
+            <div class="toggle-desc">Microphone button for speech-to-text</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="toggleVoice" checked onchange="applyVoice(this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Session History</div>
+            <div class="toggle-desc">Keep track of past analyses in this session</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="toggleHistory" checked onchange="applyHistory(this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Auto-scroll to Results</div>
+            <div class="toggle-desc">Automatically scroll to new results</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="toggleAutoscroll" checked></span><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div class="setting-section">
+        <div class="setting-section-title">🔌 Backend</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="apiUrlInput" type="text" value="http://localhost:5000"
+            style="flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:var(--r8);padding:8px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.82rem;outline:none;"
+            placeholder="http://localhost:5000"/>
+          <button onclick="saveApiUrl()" style="padding:8px 14px;border-radius:var(--r8);background:var(--accent-glow2);border:1px solid rgba(0,212,170,0.3);color:var(--accent);font-size:0.78rem;font-weight:600;cursor:pointer;">Save</button>
+        </div>
+        <div style="font-size:0.72rem;color:var(--dim);margin-top:6px;">Change if your Flask server runs on a different port.</div>
+      </div>
+
+      <!-- RESET -->
+      <div class="setting-section">
+        <button class="btn-reset-settings" onclick="resetSettings()">↺ Reset All Settings to Default</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EXPORT MODAL ═══════════════ -->
+<div class="modal-overlay" id="exportModal" onclick="closeExport(event)">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-head">
+      <div class="modal-title">📤 Export Results</div>
+      <button class="modal-close" onclick="closeExportBtn()">✕</button>
+    </div>
+    <div class="modal-body" style="gap:16px;">
+      <p style="font-size:0.85rem;color:var(--muted);">Choose a format to export your session history and analysis results.</p>
+      <div class="export-opts">
+        <div class="export-opt" onclick="exportAs('json')">
+          <div class="export-icon">{ }</div>
+          <div class="export-label">JSON</div>
+          <div class="export-sub">Raw data</div>
+        </div>
+        <div class="export-opt" onclick="exportAs('csv')">
+          <div class="export-icon">📊</div>
+          <div class="export-label">CSV</div>
+          <div class="export-sub">Spreadsheet</div>
+        </div>
+        <div class="export-opt" onclick="exportAs('txt')">
+          <div class="export-icon">📄</div>
+          <div class="export-label">Text</div>
+          <div class="export-sub">Plain report</div>
+        </div>
+        <div class="export-opt" onclick="exportAs('print')">
+          <div class="export-icon">🖨️</div>
+          <div class="export-label">Print</div>
+          <div class="export-sub">PDF via browser</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE ═══════════════ -->
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="logo" href="#">
+      <img src="logo_dark.jpg"  class="logo-img logo-dark"  alt="VitaCheck Logo"/>
+      <img src="logo_light.jpg" class="logo-img logo-light" alt="VitaCheck Logo"/>
+      <div class="logo-text-wrap">
+        <div class="logo-text">Vita<span>Check</span></div>
+        <div class="logo-sub">by Vaibhav Kishor Sonar</div>
+      </div>
+    </a>
+    <div class="nav-right">
+      <div class="nav-badge"><div class="pulse-dot"></div>BiomedBERT · 24 Conditions</div>
+      <!-- Theme quick toggle -->
+      <button class="icon-btn" id="themeToggleBtn" onclick="quickToggleTheme()" title="Toggle light/dark mode">🌙</button>
+      <!-- Export -->
+      <button class="icon-btn" onclick="openExport()" title="Export results">📤</button>
+      <!-- Settings -->
+      <button class="icon-btn icon-btn-settings" onclick="openSettings()" title="Settings">⚙️</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">🧬 AI-Powered Symptom Analysis</div>
+    <h1>Describe how you feel,<br><em>understand what's wrong.</em></h1>
+    <p class="hero-sub">VitaCheck uses a fine-tuned BiomedBERT model to analyse your symptoms and surface possible conditions with confidence scores and clinical guidance.</p>
+    <div class="hero-stats">
+      <div class="stat-pill"><strong>24</strong> diseases</div>
+      <span class="stat-sep">·</span>
+      <div class="stat-pill"><strong>93.4%</strong> accuracy</div>
+      <span class="stat-sep">·</span>
+      <div class="stat-pill"><strong>BiomedBERT</strong></div>
+      <span class="stat-sep">·</span>
+      <div class="stat-pill"><strong>Real-time</strong></div>
+    </div>
+  </section>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT -->
+    <div>
+
+      <!-- INPUT CARD -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📝</div>
+          <div class="card-title-row">
+            <div class="card-title">Describe Your Symptoms</div>
+          </div>
+        </div>
+
+        <!-- VOICE ROW -->
+        <div class="voice-row" id="voiceRow">
+          <button class="btn-voice" id="voiceBtn" onclick="toggleVoice()">🎙 Voice Input</button>
+          <span class="voice-hint" id="voiceHint">Click to speak your symptoms</span>
+        </div>
+
+        <div class="quick-label">Quick examples</div>
+        <div class="quick-chips">
+          <div class="chip" onclick="setChip('I have high fever, chills, and body aches for 3 days')">🌡 Fever + chills</div>
+          <div class="chip" onclick="setChip('I feel itching, skin rash, and watery eyes')">🌿 Rash + itching</div>
+          <div class="chip" onclick="setChip('I have severe headache, nausea and light sensitivity')">🤕 Headache</div>
+          <div class="chip" onclick="setChip('I have heartburn, acid reflux and chest discomfort after eating')">🔥 Heartburn</div>
+          <div class="chip" onclick="setChip('I have joint pain, stiffness and swelling in my knees')">🦴 Joint pain</div>
+          <div class="chip" onclick="setChip('I have persistent cough, chest pain and difficulty breathing')">🫁 Breathing</div>
+        </div>
+
+        <div class="input-wrap">
+          <textarea id="symptomInput" placeholder="Describe your symptoms in plain language… e.g. 'I have had fever, headache and body pain for the past 2 days'" oninput="updateCharCount(this)"></textarea>
+          <span class="char-count" id="charCount">0 / 500</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-analyse" id="analyseBtn" onclick="analyse()">
+            <span id="btnSpinner" class="btn-spinner"></span>
+            <span id="btnText">⚡ Analyse Symptoms</span>
+          </button>
+          <button class="btn-clear" onclick="resetChat()" title="Clear all">🗑</button>
+        </div>
+
+        <div class="disclaimer">
+          <span class="disc-icon">⚠️</span>
+          <div class="disc-text"><strong>Educational use only.</strong> VitaCheck is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a licensed healthcare provider.</div>
+        </div>
+      </div>
+
+      <!-- RESULTS CARD -->
+      <div class="card" id="resultCard" style="display:none;">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <div class="card-title-row">
+            <div class="card-title">Analysis Results</div>
+            <span id="resultCount" style="font-size:0.72rem;color:var(--dim);margin-left:auto;"></span>
+          </div>
+        </div>
+        <div class="chat-area" id="chatArea"></div>
+      </div>
+
+      <!-- HISTORY CARD -->
+      <div class="card" id="historyCard" style="display:none;">
+        <div class="card-header">
+          <div class="card-icon">🕓</div>
+          <div class="card-title-row">
+            <div class="card-title">Session History</div>
+            <button onclick="clearHistory()" style="margin-left:auto;font-size:0.72rem;color:var(--dim);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;" title="Clear history">Clear</button>
+          </div>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- MODEL PERFORMANCE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Model Performance</div>
+        </div>
+        <div class="accuracy-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="var(--border2)" stroke-width="6"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="url(#accGrad)" stroke-width="6"
+              stroke-dasharray="175.9" stroke-dashoffset="11.6"
+              stroke-linecap="round" transform="rotate(-90 36 36)"/>
+            <defs>
+              <linearGradient id="accGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="var(--accent)"/>
+                <stop offset="100%" stop-color="#00f5c0"/>
+              </linearGradient>
+            </defs>
+            <text x="36" y="39" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)" font-family="Outfit">93.4%</text>
+          </svg>
+          <div class="accuracy-info">
+            <h3>93.4%</h3>
+            <p>Overall accuracy on held-out test dataset</p>
+          </div>
+        </div>
+        <div class="accuracy-details">
+          <div class="acc-stat"><div class="acc-stat-val">0.934</div><div class="acc-stat-label">F1 Score</div></div>
+          <div class="acc-stat"><div class="acc-stat-val">0.93</div><div class="acc-stat-label">Precision</div></div>
+          <div class="acc-stat"><div class="acc-stat-val">24</div><div class="acc-stat-label">Conditions</div></div>
+          <div class="acc-stat"><div class="acc-stat-val">BERT</div><div class="acc-stat-label">Architecture</div></div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title">How It Works</div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div><div class="step-title">Describe symptoms</div><div class="step-desc">Enter symptoms in plain language — no medical jargon needed</div></div></div>
+          <div class="step"><div class="step-num">2</div><div><div class="step-title">NLP Processing</div><div class="step-desc">BiomedBERT tokenizes & encodes with biomedical context</div></div></div>
+          <div class="step"><div class="step-num">3</div><div><div class="step-title">Classification</div><div class="step-desc">Fine-tuned model predicts top-3 most likely conditions</div></div></div>
+          <div class="step"><div class="step-num">4</div><div><div class="step-title">Guidance returned</div><div class="step-desc">Receive condition info, confidence score, and next steps</div></div></div>
+        </div>
+      </div>
+
+      <!-- SYMPTOM BROWSER -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🔖</div>
+          <div class="card-title">Symptom Browser</div>
+        </div>
+        <div class="tag-group">
+          <div class="tag-group-label">Respiratory</div>
+          <div class="tag-cloud">
+            <span class="tag" onclick="appendTag('cough')">cough</span>
+            <span class="tag" onclick="appendTag('wheezing')">wheezing</span>
+            <span class="tag" onclick="appendTag('shortness of breath')">shortness of breath</span>
+            <span class="tag" onclick="appendTag('runny nose')">runny nose</span>
+            <span class="tag" onclick="appendTag('sore throat')">sore throat</span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <div class="tag-group-label">Systemic</div>
+          <div class="tag-cloud">
+            <span class="tag" onclick="appendTag('fever')">fever</span>
+            <span class="tag" onclick="appendTag('chills')">chills</span>
+            <span class="tag" onclick="appendTag('fatigue')">fatigue</span>
+            <span class="tag" onclick="appendTag('body ache')">body ache</span>
+            <span class="tag" onclick="appendTag('weakness')">weakness</span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <div class="tag-group-label">Digestive</div>
+          <div class="tag-cloud">
+            <span class="tag" onclick="appendTag('nausea')">nausea</span>
+            <span class="tag" onclick="appendTag('vomiting')">vomiting</span>
+            <span class="tag" onclick="appendTag('abdominal pain')">abdominal pain</span>
+            <span class="tag" onclick="appendTag('heartburn')">heartburn</span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <div class="tag-group-label">Skin & Other</div>
+          <div class="tag-cloud">
+            <span class="tag" onclick="appendTag('rash')">rash</span>
+            <span class="tag" onclick="appendTag('itching')">itching</span>
+            <span class="tag" onclick="appendTag('blisters')">blisters</span>
+            <span class="tag" onclick="appendTag('headache')">headache</span>
+            <span class="tag" onclick="appendTag('dizziness')">dizziness</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-text" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <img src="logo_dark.jpg" class="logo-dark" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,212,170,0.2);" alt="logo"/>
+      <img src="logo_light.jpg" class="logo-light" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,0,0,0.1);" alt="logo"/>
+      © 2026 <strong style="color:var(--muted);">Vaibhav Kishor Sonar</strong> &nbsp;·&nbsp; <a href="#">GitHub</a> &nbsp;·&nbsp; <a href="https://www.linkedin.com/in/vaibhav-sonar-vks292006/">LinkedIn</a> &nbsp;·&nbsp; Educational use only
+    </div>
+    <div>
+      <span class="tech-tag">BiomedBERT</span>
+      <span class="tech-tag">Flask</span>
+      <span class="tech-tag">PyTorch</span>
+      <span class="tech-tag">HuggingFace</span>
+    </div>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
