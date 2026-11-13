@@ -11,6 +11,6 @@ venv/
 *.bin
 *.docx
 vitacheck.zip
-Dockerfile
+Dockerfile.backend
 Procfile
 
