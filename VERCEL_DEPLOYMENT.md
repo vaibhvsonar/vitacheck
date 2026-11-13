@@ -60,6 +60,7 @@ npx vercel --prod
 If you wish to host the dedicated Python BiomedBERT model:
 1. Go to [render.com](https://render.com) and create a **Web Service**.
 2. Connect your GitHub repository.
-3. Build Command: `pip install -r requirements.txt`
+3. Build Command: `pip install -r requirements-backend.txt`
 4. Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1`
 5. Once deployed, copy your Render URL and add it as `BACKEND_URL` in your Vercel Project Settings → Environment Variables.
+

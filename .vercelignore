@@ -1,0 +1,15 @@
+# Exclude heavy ML/Python files from Vercel deployment
+*.py
+requirements.txt
+requirements-backend.txt
+models/
+data/
+reports/
+venv/
+*.csv
+*.pkl
+*.bin
+*.docx
+vitacheck.zip
+Dockerfile
+Procfile
