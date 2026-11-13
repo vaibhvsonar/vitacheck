@@ -2,7 +2,8 @@
    STATE
 ═══════════════════════════════════════════ */
 let sessionHistory = [];
-let apiBase = localStorage.getItem('vc_api') || 'http://localhost:5000';
+const defaultApiBase = (window.location.protocol === 'https:' ? '' : 'http://localhost:5000');
+let apiBase = localStorage.getItem('vc_api') !== null ? localStorage.getItem('vc_api') : defaultApiBase;
 let recognition = null;
 let isRecording = false;
 let analysisCount = 0;
@@ -132,7 +133,7 @@ function openSettings() {
 
   document.getElementById('toggleCompact').checked = document.body.classList.contains('compact');
   document.getElementById('toggleBg').checked = document.querySelector('.bg-canvas').style.display !== 'none';
-  document.getElementById('apiUrlInput').value = apiBase;
+  document.getElementById('apiUrlInput').value = apiBase || (window.location.protocol === 'https:' ? window.location.origin : 'http://localhost:5000');
 
   document.getElementById('settingsModal').classList.add('open');
 }
@@ -140,8 +141,14 @@ function closeSettingsBtn() { document.getElementById('settingsModal').classList
 function closeSettings(e) { if (e.target === document.getElementById('settingsModal')) closeSettingsBtn(); }
 
 function saveApiUrl() {
-  apiBase = document.getElementById('apiUrlInput').value.trim() || 'http://localhost:5000';
-  localStorage.setItem('vc_api', apiBase);
+  const entered = document.getElementById('apiUrlInput').value.trim();
+  if (entered && entered !== window.location.origin) {
+    apiBase = entered.replace(/\/+$/, '');
+    localStorage.setItem('vc_api', apiBase);
+  } else {
+    localStorage.removeItem('vc_api');
+    apiBase = defaultApiBase;
+  }
   showToast('🔌 API URL saved');
 }
 
@@ -153,7 +160,7 @@ function resetSettings() {
   document.body.classList.remove('compact');
   document.querySelector('.bg-canvas').style.display='';
   document.querySelector('.bg-grid').style.display='';
-  apiBase = 'http://localhost:5000';
+  apiBase = defaultApiBase;
   showToast('↺ Settings reset');
   setTimeout(closeSettingsBtn, 800);
 }
@@ -295,12 +302,13 @@ async function analyse() {
     const data = await res.json();
     renderResponse(data, text);
   } catch(err) {
+    const targetUrl = apiBase ? `${apiBase}/analyse` : `${window.location.origin}/analyse`;
     addBotMsg(`<div class="info-card" style="border-color:rgba(229,62,90,0.2);">
       <strong style="color:var(--red);">⚡ Connection Error</strong><br>
-      Cannot connect to VitaCheck backend at <code>${apiBase}</code><br><br>
-      <strong>Run this in your terminal:</strong><br>
+      Cannot connect to VitaCheck backend at <code>${targetUrl}</code><br><br>
+      <strong>If running locally:</strong><br>
       <code style="display:block;margin-top:6px;padding:6px 10px;background:var(--card);border-radius:6px;font-size:0.78rem;">python app.py</code>
-      <br>Then refresh and try again. You can also change the API URL in ⚙️ Settings.
+      <br><strong>If deployed on Vercel:</strong> Ensure your backend is hosted (e.g. Render / Hugging Face Spaces) and entered in ⚙️ <strong>Settings</strong> or configured in <code>vercel.json</code> rewrites.
     </div>`);
   }
   setLoading(false);

@@ -171,5 +171,6 @@ def health():
 
 
 if __name__ == "__main__":
-    print(f"\n  [OK]  VitaCheck -> http://localhost:5000\n", flush=True)
-    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False, threaded=False)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"\n  [OK]  VitaCheck -> http://0.0.0.0:{port}\n", flush=True)
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False, threaded=False)

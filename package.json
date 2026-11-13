@@ -1,0 +1,17 @@
+{
+  "name": "vitacheck",
+  "version": "1.0.0",
+  "description": "VitaCheck - AI Symptom Intelligence",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "ai",
+    "healthcare",
+    "symptom-checker",
+    "biomedbert"
+  ],
+  "author": "vaibhvsonar",
+  "license": "MIT"
+}
